@@ -1,580 +1,1461 @@
-/* =========================================
-   PIEDRA, PAPEL O TIJERA
+/* ==================================================
    HUELLA AZUL
-========================================= */
+   juego.js
+================================================== */
+
+document.addEventListener("DOMContentLoaded", function () {
 
 
-/* VARIABLES */
+    /* ==================================================
+       NOMBRE DEL JUGADOR
+    ================================================== */
 
-let playerScore = 0;
-let computerScore = 0;
-let draws = 0;
-let rounds = 0;
+    const nameModal = document.getElementById("name-modal");
+    const nameForm = document.getElementById("name-form");
+    const nameInput = document.getElementById("player-name");
+    const nameError = document.getElementById("name-error");
 
-
-/* ELEMENTOS */
-
-const playerScoreElement =
-    document.getElementById("player-score");
-
-const computerScoreElement =
-    document.getElementById("computer-score");
-
-const playerChoiceElement =
-    document.getElementById("player-choice");
-
-const computerChoiceElement =
-    document.getElementById("computer-choice");
-
-const resultElement =
-    document.getElementById("result");
-
-const resultDescription =
-    document.getElementById("result-description");
-
-const roundLabel =
-    document.getElementById("round-label");
-
-const historyList =
-    document.getElementById("history-list");
-
-const roundCounter =
-    document.getElementById("round-counter");
+    const savedName = localStorage.getItem("huellaPlayerName");
 
 
-/* OPCIONES */
+    if (nameModal) {
 
-const choices = [
-    "piedra",
-    "papel",
-    "tijera"
-];
+        if (savedName) {
 
+            nameModal.classList.add("hidden");
 
-/* SÍMBOLOS */
+        } else {
 
-const symbols = {
+            nameModal.classList.remove("hidden");
 
-    piedra: "✊",
-
-    papel: "✋",
-
-    tijera: "✌"
-
-};
-
-
-/* =========================
-   SONIDOS
-========================= */
-
-/*
-   Los sonidos se generan directamente
-   con Web Audio API.
-*/
-
-function playSound(type) {
-
-    const AudioContext =
-        window.AudioContext ||
-        window.webkitAudioContext;
-
-    if (!AudioContext) return;
-
-    const audioContext = new AudioContext();
-
-    const oscillator =
-        audioContext.createOscillator();
-
-    const gain =
-        audioContext.createGain();
-
-
-    oscillator.connect(gain);
-
-    gain.connect(audioContext.destination);
-
-
-    if (type === "piedra") {
-
-        oscillator.type = "sine";
-
-        oscillator.frequency.setValueAtTime(
-            130,
-            audioContext.currentTime
-        );
-
-        oscillator.frequency.exponentialRampToValueAtTime(
-            70,
-            audioContext.currentTime + 0.18
-        );
+        }
 
     }
 
 
-    if (type === "papel") {
+    if (nameForm) {
 
-        oscillator.type = "triangle";
+        nameForm.addEventListener("submit", function (event) {
 
-        oscillator.frequency.setValueAtTime(
-            500,
-            audioContext.currentTime
-        );
+            event.preventDefault();
 
-        oscillator.frequency.exponentialRampToValueAtTime(
-            250,
-            audioContext.currentTime + 0.25
-        );
+            const name = nameInput.value.trim();
 
-    }
+            if (name === "") {
 
+                nameError.textContent =
+                    "Por favor, escribe tu nombre.";
 
-    if (type === "tijera") {
+                nameInput.focus();
 
-        oscillator.type = "square";
-
-        oscillator.frequency.setValueAtTime(
-            800,
-            audioContext.currentTime
-        );
-
-        oscillator.frequency.exponentialRampToValueAtTime(
-            300,
-            audioContext.currentTime + 0.12
-        );
-
-    }
+                return;
+            }
 
 
-    if (type === "win") {
+            localStorage.setItem(
+                "huellaPlayerName",
+                name
+            );
 
-        oscillator.type = "sine";
+            nameError.textContent = "";
 
-        oscillator.frequency.setValueAtTime(
-            450,
-            audioContext.currentTime
-        );
+            nameModal.classList.add("hidden");
 
-        oscillator.frequency.setValueAtTime(
-            650,
-            audioContext.currentTime + 0.12
-        );
-
-        oscillator.frequency.setValueAtTime(
-            850,
-            audioContext.currentTime + 0.24
-        );
+        });
 
     }
 
 
-    if (type === "lose") {
+    /* ==================================================
+       PÁGINA DE JUEGOS
+    ================================================== */
 
-        oscillator.type = "sawtooth";
+    const params =
+        new URLSearchParams(window.location.search);
 
-        oscillator.frequency.setValueAtTime(
-            400,
-            audioContext.currentTime
-        );
-
-        oscillator.frequency.exponentialRampToValueAtTime(
-            150,
-            audioContext.currentTime + 0.3
-        );
-
-    }
+    const selectedGame =
+        params.get("game");
 
 
-    if (type === "draw") {
+    if (selectedGame) {
 
-        oscillator.type = "triangle";
-
-        oscillator.frequency.setValueAtTime(
-            350,
-            audioContext.currentTime
-        );
-
-        oscillator.frequency.setValueAtTime(
-            350,
-            audioContext.currentTime + 0.15
-        );
+        showSelectedGame(selectedGame);
 
     }
 
 
-    gain.gain.setValueAtTime(
-        0.0001,
-        audioContext.currentTime
-    );
+    /* ==================================================
+       FUNCIÓN PARA MOSTRAR EL JUEGO
+    ================================================== */
 
-    gain.gain.exponentialRampToValueAtTime(
-        0.15,
-        audioContext.currentTime + 0.01
-    );
+    function showSelectedGame(game) {
 
-    gain.gain.exponentialRampToValueAtTime(
-        0.0001,
-        audioContext.currentTime + 0.35
-    );
+        const title =
+            document.getElementById("game-title");
 
+        const description =
+            document.getElementById("game-description");
 
-    oscillator.start();
 
-    oscillator.stop(
-        audioContext.currentTime + 0.35
-    );
-}
+        const panels = [
+            "triqui-game",
+            "ppt-game",
+            "ahorcado-game",
+            "memoria-game"
+        ];
 
 
-/* =========================
-   JUGADA COMPUTADORA
-========================= */
+        panels.forEach(function (id) {
 
-function computerPlay() {
+            const panel =
+                document.getElementById(id);
 
-    const randomIndex =
-        Math.floor(Math.random() * choices.length);
-
-    return choices[randomIndex];
-}
-
-
-/* =========================
-   DETERMINAR GANADOR
-========================= */
-
-function determineWinner(player, computer) {
-
-    if (player === computer) {
-
-        return "draw";
-
-    }
-
-
-    if (
-        (player === "piedra" && computer === "tijera") ||
-        (player === "papel" && computer === "piedra") ||
-        (player === "tijera" && computer === "papel")
-    ) {
-
-        return "win";
-
-    }
-
-
-    return "lose";
-}
-
-
-/* =========================
-   JUGAR
-========================= */
-
-function playGame(playerChoice) {
-
-    const computerChoice =
-        computerPlay();
-
-
-    rounds++;
-
-
-    /* SONIDO DE LA ELECCIÓN */
-
-    playSound(playerChoice);
-
-
-    /* MOSTRAR ELECCIONES */
-
-    playerChoiceElement.innerHTML =
-        `<span>${symbols[playerChoice]}</span>`;
-
-    computerChoiceElement.innerHTML =
-        `<span>${symbols[computerChoice]}</span>`;
-
-
-    /* ANIMACIÓN */
-
-    playerChoiceElement.classList.remove(
-        "animate-choice"
-    );
-
-    computerChoiceElement.classList.remove(
-        "animate-choice"
-    );
-
-
-    void playerChoiceElement.offsetWidth;
-
-
-    playerChoiceElement.classList.add(
-        "animate-choice"
-    );
-
-    computerChoiceElement.classList.add(
-        "animate-choice"
-    );
-
-
-    /* RESULTADO */
-
-    const result =
-        determineWinner(
-            playerChoice,
-            computerChoice
-        );
-
-
-    if (result === "win") {
-
-        playerScore++;
-
-        resultElement.textContent =
-            "¡Ganaste!";
-
-        resultDescription.textContent =
-            `${capitalize(playerChoice)} vence a ${computerChoice}.`;
-
-        roundLabel.textContent =
-            "RESULTADO";
-
-        playSound("win");
-
-    }
-
-
-    else if (result === "lose") {
-
-        computerScore++;
-
-        resultElement.textContent =
-            "Perdiste";
-
-        resultDescription.textContent =
-            `${capitalize(computerChoice)} vence a ${playerChoice}.`;
-
-        roundLabel.textContent =
-            "RESULTADO";
-
-        playSound("lose");
-
-    }
-
-
-    else {
-
-        draws++;
-
-        resultElement.textContent =
-            "¡Empate!";
-
-        resultDescription.textContent =
-            "Los dos eligieron la misma opción.";
-
-        roundLabel.textContent =
-            "RESULTADO";
-
-        playSound("draw");
-
-    }
-
-
-    /* ACTUALIZAR MARCADOR */
-
-    playerScoreElement.textContent =
-        playerScore;
-
-    computerScoreElement.textContent =
-        computerScore;
-
-
-    /* HISTORIAL */
-
-    addHistory(
-        playerChoice,
-        computerChoice,
-        result
-    );
-
-
-    /* CONTADOR */
-
-    roundCounter.textContent =
-        `${rounds} ${rounds === 1 ? "partida" : "partidas"}`;
-
-
-    /* BOTÓN ACTIVO */
-
-    document.querySelectorAll(".game-choice")
-        .forEach(button => {
-
-            button.classList.remove("active");
+            if (panel) {
+                panel.classList.add("hidden");
+            }
 
         });
 
 
-    const selectedButton =
-        document.querySelector(
-            `[data-choice="${playerChoice}"]`
-        );
+        if (game === "triqui") {
+
+            title.textContent = "Triqui";
+
+            description.textContent =
+                "Consigue tres símbolos iguales en línea antes que la computadora.";
+
+            document
+                .getElementById("triqui-game")
+                .classList.remove("hidden");
+
+            initTriqui();
+
+        }
 
 
-    if (selectedButton) {
+        else if (game === "ppt") {
 
-        selectedButton.classList.add("active");
+            title.textContent =
+                "Piedra, Papel o Tijera";
+
+            description.textContent =
+                "Elige tu movimiento y compite contra la computadora.";
+
+            document
+                .getElementById("ppt-game")
+                .classList.remove("hidden");
+
+            initPPT();
+
+        }
+
+
+        else if (game === "ahorcado") {
+
+            title.textContent =
+                "Ahorcado";
+
+            description.textContent =
+                "Descubre la palabra secreta antes de quedarte sin intentos.";
+
+            document
+                .getElementById("ahorcado-game")
+                .classList.remove("hidden");
+
+            initHangman();
+
+        }
+
+
+        else if (game === "memoria") {
+
+            title.textContent =
+                "Memoria";
+
+            description.textContent =
+                "Encuentra todas las parejas.";
+
+            document
+                .getElementById("memoria-game")
+                .classList.remove("hidden");
+
+            initMemory();
+
+        }
 
     }
 
-}
+
+    /* ==================================================
+       1. TRIQUI
+    ================================================== */
+
+    function initTriqui() {
+
+        const cells =
+            document.querySelectorAll(".triqui-cell");
+
+        const message =
+            document.getElementById("triqui-message");
+
+        const playerScoreElement =
+            document.getElementById("triqui-player-score");
+
+        const computerScoreElement =
+            document.getElementById("triqui-computer-score");
+
+        const playerNameElement =
+            document.getElementById("triqui-player-name");
 
 
-/* =========================
-   HISTORIAL
-========================= */
-
-function addHistory(
-    playerChoice,
-    computerChoice,
-    result
-) {
-
-    const emptyMessage =
-        historyList.querySelector(".empty-history");
+        if (
+            cells.length !== 9 ||
+            !message ||
+            !playerScoreElement ||
+            !computerScoreElement
+        ) {
+            return;
+        }
 
 
-    if (emptyMessage) {
-
-        emptyMessage.remove();
-
-    }
+        const playerName =
+            localStorage.getItem("huellaPlayerName")
+            || "Jugador";
 
 
-    const historyItem =
-        document.createElement("div");
+        if (playerNameElement) {
+
+            playerNameElement.textContent =
+                playerName;
+
+        }
 
 
-    historyItem.className =
-        "history-item";
+        let board = [
+            "",
+            "",
+            "",
+            "",
+            "",
+            "",
+            "",
+            "",
+            ""
+        ];
+
+        let playerScore = 0;
+
+        let computerScore = 0;
+
+        let gameOver = false;
+
+        let computerThinking = false;
 
 
-    let resultText = "";
+        const winningCombinations = [
+
+            [0, 1, 2],
+            [3, 4, 5],
+            [6, 7, 8],
+
+            [0, 3, 6],
+            [1, 4, 7],
+            [2, 5, 8],
+
+            [0, 4, 8],
+            [2, 4, 6]
+
+        ];
 
 
-    if (result === "win") {
+        function updateBoard() {
 
-        resultText = "VICTORIA";
+            cells.forEach(function (cell, index) {
 
-    }
+                cell.textContent =
+                    board[index];
 
-    else if (result === "lose") {
-
-        resultText = "DERROTA";
-
-    }
-
-    else {
-
-        resultText = "EMPATE";
-
-    }
+                cell.classList.remove("x");
+                cell.classList.remove("o");
 
 
-    historyItem.innerHTML = `
+                if (board[index] === "X") {
 
-        <span>
-            ${symbols[playerChoice]}
-            ${capitalize(playerChoice)}
-        </span>
+                    cell.classList.add("x");
 
-        <span>
-            ${symbols[computerChoice]}
-            ${capitalize(computerChoice)}
-        </span>
-
-        <span class="${result}">
-            ${resultText}
-        </span>
-
-    `;
+                }
 
 
-    historyList.prepend(historyItem);
+                if (board[index] === "O") {
 
-}
+                    cell.classList.add("o");
 
+                }
 
-/* =========================
-   REINICIAR
-========================= */
+            });
 
-function resetGame() {
-
-    playerScore = 0;
-
-    computerScore = 0;
-
-    draws = 0;
-
-    rounds = 0;
+        }
 
 
-    playerScoreElement.textContent =
-        "0";
+        function checkWinner() {
 
-    computerScoreElement.textContent =
-        "0";
+            for (
+                let i = 0;
+                i < winningCombinations.length;
+                i++
+            ) {
 
+                const combination =
+                    winningCombinations[i];
 
-    playerChoiceElement.innerHTML =
-        "<span>?</span>";
-
-    computerChoiceElement.innerHTML =
-        "<span>?</span>";
-
-
-    resultElement.textContent =
-        "¿Quién ganará?";
+                const a = combination[0];
+                const b = combination[1];
+                const c = combination[2];
 
 
-    resultDescription.textContent =
-        "Selecciona una de las tres opciones para comenzar.";
+                if (
+                    board[a] !== "" &&
+                    board[a] === board[b] &&
+                    board[a] === board[c]
+                ) {
+
+                    return board[a];
+
+                }
+
+            }
 
 
-    roundLabel.textContent =
-        "ELIGE TU JUGADA";
+            let boardFull = true;
 
 
-    roundCounter.textContent =
-        "0 partidas";
+            for (let i = 0; i < board.length; i++) {
+
+                if (board[i] === "") {
+
+                    boardFull = false;
+
+                    break;
+
+                }
+
+            }
 
 
-    historyList.innerHTML = `
+            if (boardFull) {
 
-        <p class="empty-history">
-            Todavía no has jugado ninguna partida.
-        </p>
+                return "EMPATE";
 
-    `;
+            }
 
 
-    document.querySelectorAll(".game-choice")
-        .forEach(button => {
+            return null;
 
-            button.classList.remove("active");
+        }
+
+
+        function finishGame(result) {
+
+            gameOver = true;
+
+
+            if (result === "X") {
+
+                playerScore++;
+
+                playerScoreElement.textContent =
+                    playerScore;
+
+                message.textContent =
+                    "¡Ganaste!";
+
+            }
+
+
+            else if (result === "O") {
+
+                computerScore++;
+
+                computerScoreElement.textContent =
+                    computerScore;
+
+                message.textContent =
+                    "La computadora ganó.";
+
+            }
+
+
+            else {
+
+                message.textContent =
+                    "¡Empate!";
+
+            }
+
+        }
+
+
+        function computerMove() {
+
+            if (gameOver) {
+                return;
+            }
+
+
+            const available =
+                [];
+
+
+            for (let i = 0; i < board.length; i++) {
+
+                if (board[i] === "") {
+
+                    available.push(i);
+
+                }
+
+            }
+
+
+            if (available.length === 0) {
+
+                computerThinking = false;
+
+                return;
+
+            }
+
+
+            const randomPosition =
+                Math.floor(
+                    Math.random() *
+                    available.length
+                );
+
+
+            const position =
+                available[randomPosition];
+
+
+            board[position] = "O";
+
+
+            updateBoard();
+
+
+            computerThinking = false;
+
+
+            const result =
+                checkWinner();
+
+
+            if (result) {
+
+                finishGame(result);
+
+            } else {
+
+                message.textContent =
+                    "Tu turno. Coloca una X.";
+
+            }
+
+        }
+
+
+        function playerMove(index) {
+
+            if (gameOver) {
+                return;
+            }
+
+
+            if (computerThinking) {
+                return;
+            }
+
+
+            if (board[index] !== "") {
+                return;
+            }
+
+
+            board[index] = "X";
+
+
+            updateBoard();
+
+
+            const result =
+                checkWinner();
+
+
+            if (result) {
+
+                finishGame(result);
+
+                return;
+
+            }
+
+
+            computerThinking = true;
+
+
+            message.textContent =
+                "Turno de la computadora...";
+
+
+            setTimeout(
+                computerMove,
+                500
+            );
+
+        }
+
+
+        cells.forEach(function (cell) {
+
+            cell.addEventListener(
+                "click",
+                function () {
+
+                    const index =
+                        Number(
+                            cell.dataset.index
+                        );
+
+                    playerMove(index);
+
+                }
+            );
 
         });
 
-}
+
+        const resetButton =
+            document.getElementById(
+                "triqui-reset"
+            );
 
 
-/* =========================
-   CAPITALIZAR
-========================= */
+        if (resetButton) {
 
-function capitalize(text) {
+            resetButton.addEventListener(
+                "click",
+                function () {
 
-    return text.charAt(0).toUpperCase()
-        + text.slice(1);
+                    board = [
+                        "",
+                        "",
+                        "",
+                        "",
+                        "",
+                        "",
+                        "",
+                        "",
+                        ""
+                    ];
 
-}
+                    gameOver = false;
+
+                    computerThinking = false;
+
+                    updateBoard();
+
+                    message.textContent =
+                        "Tu turno. Coloca una X.";
+
+                }
+            );
+
+        }
+
+
+        updateBoard();
+
+    }
+
+
+    /* ==================================================
+       2. PIEDRA PAPEL TIJERA
+       SE MANTIENE FUNCIONAL
+    ================================================== */
+
+    function initPPT() {
+
+        const buttons =
+            document.querySelectorAll(
+                ".choice-button"
+            );
+
+        const playerChoice =
+            document.getElementById(
+                "player-choice"
+            );
+
+        const computerChoice =
+            document.getElementById(
+                "computer-choice"
+            );
+
+        const result =
+            document.getElementById(
+                "ppt-result"
+            );
+
+        const playerScoreElement =
+            document.getElementById(
+                "ppt-player-score"
+            );
+
+        const computerScoreElement =
+            document.getElementById(
+                "ppt-computer-score"
+            );
+
+        const drawScoreElement =
+            document.getElementById(
+                "ppt-draw-score"
+            );
+
+        const playerNameElement =
+            document.getElementById(
+                "player-name-score"
+            );
+
+
+        if (!buttons.length) {
+            return;
+        }
+
+
+        const playerName =
+            localStorage.getItem(
+                "huellaPlayerName"
+            ) || "Jugador";
+
+
+        if (playerNameElement) {
+
+            playerNameElement.textContent =
+                playerName;
+
+        }
+
+
+        let playerScore = 0;
+        let computerScore = 0;
+        let drawScore = 0;
+
+
+        const emojis = {
+
+            piedra: "✊",
+            papel: "✋",
+            tijera: "✌️"
+
+        };
+
+
+        function getComputerChoice() {
+
+            const choices = [
+                "piedra",
+                "papel",
+                "tijera"
+            ];
+
+            const random =
+                Math.floor(
+                    Math.random() *
+                    choices.length
+                );
+
+            return choices[random];
+
+        }
+
+
+        function determineWinner(
+            player,
+            computer
+        ) {
+
+            if (player === computer) {
+                return "draw";
+            }
+
+
+            if (
+                (player === "piedra" &&
+                    computer === "tijera") ||
+
+                (player === "papel" &&
+                    computer === "piedra") ||
+
+                (player === "tijera" &&
+                    computer === "papel")
+            ) {
+
+                return "player";
+
+            }
+
+
+            return "computer";
+
+        }
+
+
+        buttons.forEach(function (button) {
+
+            button.addEventListener(
+                "click",
+                function () {
+
+                    const player =
+                        button.dataset.choice;
+
+                    const computer =
+                        getComputerChoice();
+
+
+                    playerChoice.textContent =
+                        emojis[player];
+
+                    computerChoice.textContent =
+                        emojis[computer];
+
+
+                    const winner =
+                        determineWinner(
+                            player,
+                            computer
+                        );
+
+
+                    if (winner === "player") {
+
+                        playerScore++;
+
+                        playerScoreElement.textContent =
+                            playerScore;
+
+                        result.textContent =
+                            "¡Ganaste esta ronda!";
+
+                    }
+
+
+                    else if (winner === "computer") {
+
+                        computerScore++;
+
+                        computerScoreElement.textContent =
+                            computerScore;
+
+                        result.textContent =
+                            "La computadora ganó esta ronda.";
+
+                    }
+
+
+                    else {
+
+                        drawScore++;
+
+                        drawScoreElement.textContent =
+                            drawScore;
+
+                        result.textContent =
+                            "¡Empate!";
+
+                    }
+
+                }
+            );
+
+        });
+
+
+        const resetButton =
+            document.getElementById(
+                "ppt-reset"
+            );
+
+
+        if (resetButton) {
+
+            resetButton.addEventListener(
+                "click",
+                function () {
+
+                    playerScore = 0;
+                    computerScore = 0;
+                    drawScore = 0;
+
+                    playerScoreElement.textContent =
+                        "0";
+
+                    computerScoreElement.textContent =
+                        "0";
+
+                    drawScoreElement.textContent =
+                        "0";
+
+                    playerChoice.textContent =
+                        "?";
+
+                    computerChoice.textContent =
+                        "?";
+
+                    result.textContent =
+                        "Elige una opción para comenzar.";
+
+                }
+            );
+
+        }
+
+    }
+
+
+    /* ==================================================
+       3. AHORCADO
+    ================================================== */
+
+    function initHangman() {
+
+        const keyboard =
+            document.getElementById(
+                "keyboard"
+            );
+
+        const wordElement =
+            document.getElementById(
+                "hangman-word"
+            );
+
+        const attemptsElement =
+            document.getElementById(
+                "hangman-attempts"
+            );
+
+        const message =
+            document.getElementById(
+                "hangman-message"
+            );
+
+        const resetButton =
+            document.getElementById(
+                "hangman-reset"
+            );
+
+
+        if (
+            !keyboard ||
+            !wordElement ||
+            !attemptsElement ||
+            !message
+        ) {
+            return;
+        }
+
+
+        const words = [
+
+            "AZUL",
+            "JUEGO",
+            "PERRO",
+            "GATO",
+            "COLOMBIA",
+            "AMIGO",
+            "ESCUELA",
+            "PROGRAMAR",
+            "COMPUTADOR",
+            "MEDICINA",
+            "HUELLA",
+            "JUGADOR"
+
+        ];
+
+
+        const alphabet =
+            "ABCDEFGHIJKLMNÑOPQRSTUVWXYZ".split("");
+
+
+        let selectedWord = "";
+
+        let guessedLetters = [];
+
+        let attempts = 6;
+
+        let gameFinished = false;
+
+
+        function startHangman() {
+
+            const randomIndex =
+                Math.floor(
+                    Math.random() *
+                    words.length
+                );
+
+
+            selectedWord =
+                words[randomIndex];
+
+
+            guessedLetters = [];
+
+            attempts = 6;
+
+            gameFinished = false;
+
+
+            attemptsElement.textContent =
+                attempts;
+
+
+            message.textContent =
+                "Selecciona una letra.";
+
+
+            createKeyboard();
+
+            updateWord();
+
+        }
+
+
+        function createKeyboard() {
+
+            keyboard.innerHTML = "";
+
+
+            alphabet.forEach(function (letter) {
+
+                const button =
+                    document.createElement(
+                        "button"
+                    );
+
+
+                button.type = "button";
+
+                button.className =
+                    "letter-button";
+
+                button.textContent =
+                    letter;
+
+
+                button.addEventListener(
+                    "click",
+                    function () {
+
+                        selectLetter(
+                            letter,
+                            button
+                        );
+
+                    }
+                );
+
+
+                keyboard.appendChild(button);
+
+            });
+
+        }
+
+
+        function updateWord() {
+
+            const displayedWord =
+                selectedWord
+                    .split("")
+                    .map(function (letter) {
+
+                        if (
+                            guessedLetters.includes(
+                                letter
+                            )
+                        ) {
+
+                            return letter;
+
+                        }
+
+                        return "_";
+
+                    })
+                    .join(" ");
+
+
+            wordElement.textContent =
+                displayedWord;
+
+        }
+
+
+        function selectLetter(
+            letter,
+            button
+        ) {
+
+            if (gameFinished) {
+                return;
+            }
+
+
+            if (
+                guessedLetters.includes(
+                    letter
+                )
+            ) {
+                return;
+            }
+
+
+            guessedLetters.push(letter);
+
+
+            button.disabled = true;
+
+
+            if (
+                selectedWord.includes(
+                    letter
+                )
+            ) {
+
+                button.classList.add(
+                    "correct"
+                );
+
+                message.textContent =
+                    "¡Correcto!";
+
+                updateWord();
+
+                checkWin();
+
+            }
+
+
+            else {
+
+                attempts--;
+
+                attemptsElement.textContent =
+                    attempts;
+
+                button.classList.add(
+                    "wrong"
+                );
+
+                message.textContent =
+                    "Esa letra no está.";
+
+
+                if (attempts <= 0) {
+
+                    gameFinished = true;
+
+
+                    wordElement.textContent =
+                        selectedWord
+                            .split("")
+                            .join(" ");
+
+
+                    message.textContent =
+                        "Perdiste. La palabra era " +
+                        selectedWord;
+
+
+                    disableKeyboard();
+
+                }
+
+            }
+
+        }
+
+
+        function checkWin() {
+
+            const won =
+                selectedWord
+                    .split("")
+                    .every(function (letter) {
+
+                        return guessedLetters.includes(
+                            letter
+                        );
+
+                    });
+
+
+            if (won) {
+
+                gameFinished = true;
+
+                message.textContent =
+                    "¡Ganaste!";
+
+                disableKeyboard();
+
+            }
+
+        }
+
+
+        function disableKeyboard() {
+
+            const buttons =
+                keyboard.querySelectorAll(
+                    "button"
+                );
+
+
+            buttons.forEach(function (button) {
+
+                button.disabled = true;
+
+            });
+
+        }
+
+
+        if (resetButton) {
+
+            resetButton.addEventListener(
+                "click",
+                function () {
+
+                    startHangman();
+
+                }
+            );
+
+        }
+
+
+        startHangman();
+
+    }
+
+
+    /* ==================================================
+       4. MEMORIA
+       SE MANTIENE FUNCIONAL
+    ================================================== */
+
+    function initMemory() {
+
+        const board =
+            document.getElementById(
+                "memory-board"
+            );
+
+        const movesElement =
+            document.getElementById(
+                "memory-moves"
+            );
+
+        const pairsElement =
+            document.getElementById(
+                "memory-pairs"
+            );
+
+        const message =
+            document.getElementById(
+                "memory-message"
+            );
+
+        const resetButton =
+            document.getElementById(
+                "memory-reset"
+            );
+
+
+        if (!board) {
+            return;
+        }
+
+
+        const symbols = [
+            "🐶",
+            "🐱",
+            "🐼",
+            "🦊",
+            "🐸",
+            "🐵",
+            "🐰",
+            "🐯"
+        ];
+
+
+        let cards = [
+            ...symbols,
+            ...symbols
+        ];
+
+
+        let firstCard = null;
+
+        let secondCard = null;
+
+        let locked = false;
+
+        let moves = 0;
+
+        let pairs = 0;
+
+
+        function shuffle(array) {
+
+            for (
+                let i = array.length - 1;
+                i > 0;
+                i--
+            ) {
+
+                const j =
+                    Math.floor(
+                        Math.random() *
+                        (i + 1)
+                    );
+
+
+                [
+                    array[i],
+                    array[j]
+                ] = [
+                    array[j],
+                    array[i]
+                ];
+
+            }
+
+        }
+
+
+        function createBoard() {
+
+            board.innerHTML = "";
+
+            shuffle(cards);
+
+
+            cards.forEach(function (symbol) {
+
+                const card =
+                    document.createElement(
+                        "button"
+                    );
+
+
+                card.type = "button";
+
+                card.className =
+                    "memory-card";
+
+                card.textContent =
+                    "?";
+
+
+                card.dataset.symbol =
+                    symbol;
+
+
+                card.addEventListener(
+                    "click",
+                    function () {
+
+                        flipCard(card);
+
+                    }
+                );
+
+
+                board.appendChild(card);
+
+            });
+
+
+            moves = 0;
+
+            pairs = 0;
+
+            firstCard = null;
+
+            secondCard = null;
+
+            locked = false;
+
+
+            movesElement.textContent =
+                moves;
+
+            pairsElement.textContent =
+                pairs;
+
+            message.textContent =
+                "Encuentra todas las parejas.";
+
+        }
+
+
+        function flipCard(card) {
+
+            if (locked) {
+                return;
+            }
+
+
+            if (
+                card === firstCard
+            ) {
+                return;
+            }
+
+
+            if (
+                card.classList.contains(
+                    "matched"
+                )
+            ) {
+                return;
+            }
+
+
+            card.textContent =
+                card.dataset.symbol;
+
+            card.classList.add(
+                "flipped"
+            );
+
+
+            if (!firstCard) {
+
+                firstCard = card;
+
+                return;
+
+            }
+
+
+            secondCard = card;
+
+            moves++;
+
+            movesElement.textContent =
+                moves;
+
+            checkMatch();
+
+        }
+
+
+        function checkMatch() {
+
+            const isMatch =
+                firstCard.dataset.symbol ===
+                secondCard.dataset.symbol;
+
+
+            if (isMatch) {
+
+                firstCard.classList.add(
+                    "matched"
+                );
+
+                secondCard.classList.add(
+                    "matched"
+                );
+
+
+                pairs++;
+
+                pairsElement.textContent =
+                    pairs;
+
+
+                firstCard = null;
+
+                secondCard = null;
+
+
+                if (pairs === symbols.length) {
+
+                    message.textContent =
+                        "¡Ganaste! Encontraste todas las parejas.";
+
+                }
+
+                return;
+
+            }
+
+
+            locked = true;
+
+
+            setTimeout(
+                function () {
+
+                    firstCard.textContent =
+                        "?";
+
+                    secondCard.textContent =
+                        "?";
+
+
+                    firstCard.classList.remove(
+                        "flipped"
+                    );
+
+                    secondCard.classList.remove(
+                        "flipped"
+                    );
+
+
+                    firstCard = null;
+
+                    secondCard = null;
+
+                    locked = false;
+
+                },
+                800
+            );
+
+        }
+
+
+        if (resetButton) {
+
+            resetButton.addEventListener(
+                "click",
+                function () {
+
+                    createBoard();
+
+                }
+            );
+
+        }
+
+
+        createBoard();
+
+    }
+
+});
+

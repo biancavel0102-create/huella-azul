@@ -1,250 +1,465 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
 
     <meta charset="UTF-8">
-
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>Jugar | Huella Azul</title>
+    <title>Huella Azul | Juegos</title>
 
     <link rel="stylesheet" href="style.css">
 
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-
 </head>
+
 
 <body class="game-page">
 
 
-    <!-- NAVBAR -->
+    <!-- =========================
+         NAVBAR
+    ========================== -->
 
     <header class="navbar">
 
-        <div class="logo">
+        <div class="nav-container">
 
-            <div class="paw-logo">
-                <span>●</span>
-                <span>●</span>
-                <span>●</span>
-                <span>●</span>
-            </div>
+            <a href="index.html" class="logo">
 
-            <div>
-                <h2>HUELLA AZUL</h2>
-                <p>Jóvenes que dejan huella</p>
-            </div>
+                <span class="paw-logo">
+                    <span class="paw-pad"></span>
+                    <span class="paw-toe toe-1"></span>
+                    <span class="paw-toe toe-2"></span>
+                    <span class="paw-toe toe-3"></span>
+                    <span class="paw-toe toe-4"></span>
+                </span>
+
+                <span>HUELLA AZUL</span>
+
+            </a>
+
+            <a href="index.html" class="nav-button">
+                Volver al inicio
+            </a>
 
         </div>
-
-
-        <nav>
-            <a href="index.html">Inicio</a>
-            <a href="index.html#juego">El juego</a>
-            <a href="index.html#como-funciona">Cómo funciona</a>
-            <a href="index.html#nosotros">Nosotros</a>
-        </nav>
 
     </header>
 
 
-    <!-- JUEGO -->
+    <!-- =========================
+         CONTENIDO
+    ========================== -->
 
     <main class="game-container">
 
-        <div class="game-header">
 
-            <span class="mini-label">
-                HUELLA AZUL PRESENTA
+        <section class="game-header">
+
+            <span class="section-tag">
+                ZONA DE JUEGOS
             </span>
 
-            <h1>
-                Piedra, Papel
-                <span>o Tijera</span>
+            <h1 id="game-title">
+                Juegos
             </h1>
 
-            <p>
-                Elige una opción y deja que la computadora haga su jugada.
+            <p id="game-description">
+                Selecciona un juego para comenzar.
             </p>
+
+        </section>
+
+
+        <!-- =========================
+             SELECTOR
+        ========================== -->
+
+        <div class="game-selector">
+
+            <a
+                href="juego.html?game=triqui"
+                class="selector-button">
+                Triqui
+            </a>
+
+            <a
+                href="juego.html?game=ppt"
+                class="selector-button">
+                Piedra, Papel o Tijera
+            </a>
+
+            <a
+                href="juego.html?game=ahorcado"
+                class="selector-button">
+                Ahorcado
+            </a>
+
+            <a
+                href="juego.html?game=memoria"
+                class="selector-button">
+                Memoria
+            </a>
 
         </div>
 
 
-        <!-- MARCADOR -->
+        <!-- ==================================================
+             TRIQUI
+        =================================================== -->
 
-        <section class="scoreboard">
+        <section id="triqui-game" class="game-panel hidden">
 
-            <div class="score-box">
+            <div class="scoreboard">
 
-                <span>TÚ</span>
+                <div>
+                    <span id="triqui-player-name">
+                        Jugador
+                    </span>
 
-                <strong id="player-score">
-                    0
-                </strong>
+                    <strong id="triqui-player-score">
+                        0
+                    </strong>
+                </div>
+
+                <div>
+                    <span>
+                        Computadora
+                    </span>
+
+                    <strong id="triqui-computer-score">
+                        0
+                    </strong>
+                </div>
 
             </div>
 
 
-            <div class="vs">
-                VS
+            <div class="triqui-board">
+
+                <button
+                    type="button"
+                    class="triqui-cell"
+                    data-index="0">
+                </button>
+
+                <button
+                    type="button"
+                    class="triqui-cell"
+                    data-index="1">
+                </button>
+
+                <button
+                    type="button"
+                    class="triqui-cell"
+                    data-index="2">
+                </button>
+
+                <button
+                    type="button"
+                    class="triqui-cell"
+                    data-index="3">
+                </button>
+
+                <button
+                    type="button"
+                    class="triqui-cell"
+                    data-index="4">
+                </button>
+
+                <button
+                    type="button"
+                    class="triqui-cell"
+                    data-index="5">
+                </button>
+
+                <button
+                    type="button"
+                    class="triqui-cell"
+                    data-index="6">
+                </button>
+
+                <button
+                    type="button"
+                    class="triqui-cell"
+                    data-index="7">
+                </button>
+
+                <button
+                    type="button"
+                    class="triqui-cell"
+                    data-index="8">
+                </button>
+
             </div>
 
 
-            <div class="score-box">
+            <p id="triqui-message" class="game-message">
+                Tu turno. Coloca una X.
+            </p>
 
-                <span>COMPUTADORA</span>
 
-                <strong id="computer-score">
-                    0
-                </strong>
-
-            </div>
+            <button
+                type="button"
+                id="triqui-reset"
+                class="primary-button">
+                Nueva partida
+            </button>
 
         </section>
 
 
-        <!-- RESULTADO -->
+        <!-- ==================================================
+             PIEDRA PAPEL TIJERA
+             NO SE CAMBIA SU FUNCIONAMIENTO
+        =================================================== -->
 
-        <section class="result-area">
+        <section id="ppt-game" class="game-panel hidden">
 
-            <div id="player-choice" class="choice-display">
 
-                <span>?</span>
+            <div class="scoreboard">
+
+                <div>
+
+                    <span id="player-name-score">
+                        Jugador
+                    </span>
+
+                    <strong id="ppt-player-score">
+                        0
+                    </strong>
+
+                </div>
+
+
+                <div>
+
+                    <span>
+                        Computadora
+                    </span>
+
+                    <strong id="ppt-computer-score">
+                        0
+                    </strong>
+
+                </div>
+
+
+                <div>
+
+                    <span>
+                        Empates
+                    </span>
+
+                    <strong id="ppt-draw-score">
+                        0
+                    </strong>
+
+                </div>
 
             </div>
 
 
-            <div class="result-text">
+            <div class="choices-display">
 
-                <span id="round-label">
-                    ELIGE TU JUGADA
-                </span>
+                <div class="choice-display">
 
-                <h2 id="result">
-                    ¿Quién ganará?
-                </h2>
+                    <span>
+                        Tu elección
+                    </span>
 
-                <p id="result-description">
-                    Selecciona una de las tres opciones para comenzar.
-                </p>
+                    <div id="player-choice">
+                        ?
+                    </div>
+
+                </div>
+
+
+                <div class="vs">
+                    VS
+                </div>
+
+
+                <div class="choice-display">
+
+                    <span>
+                        Computadora
+                    </span>
+
+                    <div id="computer-choice">
+                        ?
+                    </div>
+
+                </div>
 
             </div>
 
 
-            <div id="computer-choice" class="choice-display">
-
-                <span>?</span>
-
-            </div>
-
-        </section>
-
-
-        <!-- OPCIONES -->
-
-        <section class="options">
-
-            <h3>
-                Selecciona tu opción
-            </h3>
+            <p id="ppt-result" class="game-message">
+                Elige una opción para comenzar.
+            </p>
 
 
             <div class="choice-buttons">
 
                 <button
-                    class="game-choice"
+                    type="button"
+                    class="choice-button"
                     data-choice="piedra"
-                    onclick="playGame('piedra')"
-                >
-
-                    <span class="choice-symbol">✊</span>
-
-                    <strong>Piedra</strong>
-
-                    <small>Rompe la tijera</small>
-
+                    aria-label="Piedra">
+                    ✊
                 </button>
 
-
                 <button
-                    class="game-choice"
+                    type="button"
+                    class="choice-button"
                     data-choice="papel"
-                    onclick="playGame('papel')"
-                >
-
-                    <span class="choice-symbol">✋</span>
-
-                    <strong>Papel</strong>
-
-                    <small>Envuelve la piedra</small>
-
+                    aria-label="Papel">
+                    ✋
                 </button>
 
-
                 <button
-                    class="game-choice"
+                    type="button"
+                    class="choice-button"
                     data-choice="tijera"
-                    onclick="playGame('tijera')"
-                >
-
-                    <span class="choice-symbol">✌</span>
-
-                    <strong>Tijera</strong>
-
-                    <small>Corta el papel</small>
-
+                    aria-label="Tijera">
+                    ✌️
                 </button>
 
             </div>
+
+
+            <button
+                type="button"
+                id="ppt-reset"
+                class="secondary-button">
+                Reiniciar marcador
+            </button>
 
         </section>
 
 
-        <!-- BOTÓN REINICIAR -->
+        <!-- ==================================================
+             AHORCADO
+        =================================================== -->
 
-        <button
-            class="reset-button"
-            onclick="resetGame()"
-        >
-            Reiniciar marcador
-        </button>
+        <section id="ahorcado-game" class="game-panel hidden">
 
 
-        <!-- HISTORIAL -->
+            <div class="hangman-drawing">
 
-        <section class="history">
+                <div class="hangman-head"></div>
+                <div class="hangman-body"></div>
 
-            <div class="history-header">
+                <div class="hangman-arm left"></div>
+                <div class="hangman-arm right"></div>
 
-                <h3>
-                    Historial de partidas
-                </h3>
-
-                <span id="round-counter">
-                    0 partidas
-                </span>
+                <div class="hangman-leg left"></div>
+                <div class="hangman-leg right"></div>
 
             </div>
 
 
-            <div id="history-list" class="history-list">
+            <div class="hangman-info">
 
-                <p class="empty-history">
-                    Todavía no has jugado ninguna partida.
+                <p class="attempts-text">
+
+                    Intentos restantes:
+
+                    <strong id="hangman-attempts">
+                        6
+                    </strong>
+
                 </p>
 
+
+                <div
+                    id="hangman-word"
+                    class="hangman-word">
+                    _ _ _ _ _
+                </div>
+
+
+                <p
+                    id="hangman-message"
+                    class="game-message">
+                    Selecciona una letra.
+                </p>
+
+
+                <div
+                    id="keyboard"
+                    class="keyboard">
+                </div>
+
+
+                <button
+                    type="button"
+                    id="hangman-reset"
+                    class="primary-button">
+                    Nueva palabra
+                </button>
+
             </div>
 
         </section>
 
 
-        <a href="index.html" class="back-link">
-            Volver a Huella Azul
-        </a>
+        <!-- ==================================================
+             MEMORIA
+             NO SE CAMBIA SU FUNCIONAMIENTO
+        =================================================== -->
+
+        <section id="memoria-game" class="game-panel hidden">
+
+
+            <div class="memory-info">
+
+                <div>
+
+                    Movimientos
+
+                    <strong id="memory-moves">
+                        0
+                    </strong>
+
+                </div>
+
+
+                <div>
+
+                    Parejas
+
+                    <strong id="memory-pairs">
+                        0
+                    </strong>
+
+                </div>
+
+            </div>
+
+
+            <div
+                id="memory-board"
+                class="memory-board">
+            </div>
+
+
+            <p
+                id="memory-message"
+                class="game-message">
+                Encuentra todas las parejas.
+            </p>
+
+
+            <button
+                type="button"
+                id="memory-reset"
+                class="primary-button">
+                Reiniciar juego
+            </button>
+
+        </section>
 
     </main>
 
@@ -252,4 +467,5 @@
     <script src="juego.js"></script>
 
 </body>
+
 </html>
