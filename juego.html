@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Jugar | Huella Azul</title>
+
+    <link rel="stylesheet" href="style.css">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+</head>
+
+<body class="game-page">
+
+
+    <!-- NAVBAR -->
+
+    <header class="navbar">
+
+        <div class="logo">
+
+            <div class="paw-logo">
+                <span>●</span>
+                <span>●</span>
+                <span>●</span>
+                <span>●</span>
+            </div>
+
+            <div>
+                <h2>HUELLA AZUL</h2>
+                <p>Jóvenes que dejan huella</p>
+            </div>
+
+        </div>
+
+
+        <nav>
+            <a href="index.html">Inicio</a>
+            <a href="index.html#juego">El juego</a>
+            <a href="index.html#como-funciona">Cómo funciona</a>
+            <a href="index.html#nosotros">Nosotros</a>
+        </nav>
+
+    </header>
+
+
+    <!-- JUEGO -->
+
+    <main class="game-container">
+
+        <div class="game-header">
+
+            <span class="mini-label">
+                HUELLA AZUL PRESENTA
+            </span>
+
+            <h1>
+                Piedra, Papel
+                <span>o Tijera</span>
+            </h1>
+
+            <p>
+                Elige una opción y deja que la computadora haga su jugada.
+            </p>
+
+        </div>
+
+
+        <!-- MARCADOR -->
+
+        <section class="scoreboard">
+
+            <div class="score-box">
+
+                <span>TÚ</span>
+
+                <strong id="player-score">
+                    0
+                </strong>
+
+            </div>
+
+
+            <div class="vs">
+                VS
+            </div>
+
+
+            <div class="score-box">
+
+                <span>COMPUTADORA</span>
+
+                <strong id="computer-score">
+                    0
+                </strong>
+
+            </div>
+
+        </section>
+
+
+        <!-- RESULTADO -->
+
+        <section class="result-area">
+
+            <div id="player-choice" class="choice-display">
+
+                <span>?</span>
+
+            </div>
+
+
+            <div class="result-text">
+
+                <span id="round-label">
+                    ELIGE TU JUGADA
+                </span>
+
+                <h2 id="result">
+                    ¿Quién ganará?
+                </h2>
+
+                <p id="result-description">
+                    Selecciona una de las tres opciones para comenzar.
+                </p>
+
+            </div>
+
+
+            <div id="computer-choice" class="choice-display">
+
+                <span>?</span>
+
+            </div>
+
+        </section>
+
+
+        <!-- OPCIONES -->
+
+        <section class="options">
+
+            <h3>
+                Selecciona tu opción
+            </h3>
+
+
+            <div class="choice-buttons">
+
+                <button
+                    class="game-choice"
+                    data-choice="piedra"
+                    onclick="playGame('piedra')"
+                >
+
+                    <span class="choice-symbol">✊</span>
+
+                    <strong>Piedra</strong>
+
+                    <small>Rompe la tijera</small>
+
+                </button>
+
+
+                <button
+                    class="game-choice"
+                    data-choice="papel"
+                    onclick="playGame('papel')"
+                >
+
+                    <span class="choice-symbol">✋</span>
+
+                    <strong>Papel</strong>
+
+                    <small>Envuelve la piedra</small>
+
+                </button>
+
+
+                <button
+                    class="game-choice"
+                    data-choice="tijera"
+                    onclick="playGame('tijera')"
+                >
+
+                    <span class="choice-symbol">✌</span>
+
+                    <strong>Tijera</strong>
+
+                    <small>Corta el papel</small>
+
+                </button>
+
+            </div>
+
+        </section>
+
+
+        <!-- BOTÓN REINICIAR -->
+
+        <button
+            class="reset-button"
+            onclick="resetGame()"
+        >
+            Reiniciar marcador
+        </button>
+
+
+        <!-- HISTORIAL -->
+
+        <section class="history">
+
+            <div class="history-header">
+
+                <h3>
+                    Historial de partidas
+                </h3>
+
+                <span id="round-counter">
+                    0 partidas
+                </span>
+
+            </div>
+
+
+            <div id="history-list" class="history-list">
+
+                <p class="empty-history">
+                    Todavía no has jugado ninguna partida.
+                </p>
+
+            </div>
+
+        </section>
+
+
+        <a href="index.html" class="back-link">
+            Volver a Huella Azul
+        </a>
+
+    </main>
+
+
+    <script src="juego.js"></script>
+
+</body>
+</html>
